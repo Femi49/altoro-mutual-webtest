@@ -1,0 +1,77 @@
+========================================
+ PORT / SERVICE SCAN - demo.testfire.net
+========================================
+
+[Command]
+sudo nmap -sS -sV -Pn demo.testfire.net -oA nmap.result
+
+[Result]
+Nmap scan report for demo.testfire.net (65.61.137.117)
+Host is up (0.41s latency).
+Not shown: 996 filtered tcp ports (no-response)
+
+PORT     STATE  SERVICE    VERSION
+80/tcp   open   http       Apache Tomcat/Coyote JSP engine 1.1
+443/tcp  open   ssl/http   Apache Tomcat/Coyote JSP engine 1.1
+8080/tcp open   tcpwrapped
+8443/tcp closed https-alt
+
+Nmap done: 1 IP address (1 host up) scanned in 529.39 seconds
+
+
+[Command]
+sudo nmap -A -sV demo.testfire.net -oA Aggressive
+
+[Result]
+Nmap scan report for demo.testfire.net (65.61.137.117)
+Host is up (0.37s latency).
+Not shown: 996 filtered tcp ports (no-response)
+
+PORT     STATE  SERVICE   VERSION
+80/tcp   open   http      Apache Tomcat/Coyote JSP engine 1.1
+443/tcp  open   ssl/http  Apache Tomcat/Coyote JSP engine 1.1
+| ssl-cert: Subject: commonName=demo.testfire.net
+| Subject Alternative Name: DNS:demo.testfire.net
+| Not valid before: 2025-05-21T00:00:00
+|_Not valid after:  2026-06-21T23:59:59
+8080/tcp open   http      Apache Tomcat/Coyote JSP engine 1.1
+8443/tcp closed https-alt
+
+Device type: firewall
+Running (JUST GUESSING): Fortinet embedded (87%)
+Aggressive OS guesses: Fortinet FortiGate-50B or 310B firewall (87%)
+No exact OS matches for host (test conditions non-ideal).
+Network Distance: 21 hops
+
+
+[Command]
+nmap -p 80,443 --script http-methods 65.61.137.117 | tee httpmethodscan
+
+[Result]
+PORT    STATE SERVICE
+80/tcp  open  http
+443/tcp open  https
+| http-methods:
+|_  Supported Methods: GET HEAD POST OPTIONS
+
+Nmap done: 1 IP address (1 host up) scanned in 18.04 seconds
+
+
+========================================
+ SUMMARY
+========================================
+Open ports:
+  80/tcp   - HTTP  - Apache Tomcat/Coyote JSP engine 1.1
+  443/tcp  - HTTPS - Apache Tomcat/Coyote JSP engine 1.1
+  8080/tcp - tcpwrapped (HTTP confirmed under -A scan, same Tomcat/Coyote)
+Closed:
+  8443/tcp - https-alt
+
+- SSL certificate: CN=demo.testfire.net, issued by Sectigo RSA Domain
+  Validation Secure Server CA, valid 2025-05-21 -> 2026-06-21
+- OS fingerprinting inconclusive; Nmap guessed a Fortinet firewall (87%
+  confidence, not a reliable match — "test conditions non-ideal")
+- Network distance: 21 hops from scanning host
+- Baseline HTTP methods confirmed by nmap: GET, HEAD, POST, OPTIONS
+  (Nikto later revealed additional PUT/DELETE advertised via the
+  Allow header — see vuln_scans/nikto_scan.txt)
