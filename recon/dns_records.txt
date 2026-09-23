@@ -1,0 +1,50 @@
+========================================
+ DNS ENUMERATION - demo.testfire.net
+========================================
+
+[Command]
+dig +short demo.testfire.net | tee ip.result
+
+[Result]
+65.61.137.117
+
+
+[Command]
+{
+  echo "A Records:"; dig +short demo.testfire.net A
+  echo -e "\nAAAA Records:"; dig +short demo.testfire.net AAAA
+  echo -e "\nNS Records:"; dig +short demo.testfire.net NS
+  echo -e "\nMX Records:"; dig +short demo.testfire.net MX
+} | tee add.record
+
+[Result]
+A Records:
+65.61.137.117
+
+AAAA Records:
+(none returned)
+
+NS Records:
+(none returned)
+
+MX Records:
+(none returned)
+
+
+[Command]
+dnsrecon -d demo.testfire.net | tee dns.test
+
+[Result]
+[*] std: Performing General Enumeration against: demo.testfire.net...
+[-] DNSSEC is not configured for demo.testfire.net
+[*] A demo.testfire.net 65.61.137.117
+[*] Enumerating SRV Records
+[-] No SRV Records Found for demo.testfire.net
+
+========================================
+ SUMMARY
+========================================
+- Single A record: demo.testfire.net -> 65.61.137.117
+- No AAAA (IPv6), NS, or MX records returned via direct query
+- DNSSEC not configured (weakness: responses cannot be cryptographically validated)
+- No SRV records found
