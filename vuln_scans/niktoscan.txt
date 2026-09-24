@@ -48,8 +48,8 @@ Nikto flagged possible HTTP method manipulation. This is not
 conclusive on its own, so the finding was manually verified by
 sending a direct OPTIONS request to the server.
 
-[Command]
-curl -X OPTIONS http://demo.testfire.net/
+──(kali㉿kali)-[~/mypentest]
+└─$ curl -X OPTIONS http://demo.testfire.net/
 
 [Result]
 The server responded to the OPTIONS request with the FULL HTML page
