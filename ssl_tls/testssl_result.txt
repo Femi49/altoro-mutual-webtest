@@ -1,0 +1,166 @@
+========================================
+ TESTSSL RESULT - demo.testfire.net (65.61.137.117:443)
+========================================
+
+[Command]
+testssl 65.61.137.117
+
+[Environment]
+testssl version 3.2.2 from https://testssl.sh/
+Using OpenSSL 3.5.3 (Sep 17 2025) [~96 ciphers]
+Scan start: 2025-12-17 11:19:43  -->> 65.61.137.117:443
+
+
+----------------------------------------
+ PROTOCOL SUPPORT
+----------------------------------------
+SSLv2      not offered (OK)
+SSLv3      not offered (OK)
+TLS 1      offered (deprecated)
+TLS 1.1    offered (deprecated)
+TLS 1.2    offered (OK)
+TLS 1.3    not offered and downgraded to a weaker protocol
+NPN/SPDY   not offered
+ALPN/HTTP2 not offered
+
+------------------------------------------------------------
+[Screenshot] screenshots/testssl_protocol_support.png
+Caption: testssl.sh confirming TLS 1.0/1.1 offered and TLS 1.3 not
+supported.
+------------------------------------------------------------
+
+
+----------------------------------------
+ CIPHER CATEGORIES
+----------------------------------------
+NULL ciphers (no encryption)                      not offered (OK)
+Anonymous NULL Ciphers (no authentication)        not offered (OK)
+Export ciphers (w/o ADH+NULL)                     not offered (OK)
+LOW: 64 Bit + DES, RC[2,4], MD5 (w/o export)      not offered (OK)
+Triple DES Ciphers / IDEA                         not offered
+Obsoleted CBC ciphers (AES, ARIA etc.)            offered
+Strong encryption (AEAD ciphers) with no FS       not offered
+Forward Secrecy strong encryption (AEAD ciphers)  offered (OK)
+
+
+----------------------------------------
+ SERVER DEFAULTS (SERVER HELLO)
+----------------------------------------
+Session Ticket RFC 5077 hint  no -- no lifetime advertised
+SSL Session ID support        yes
+Session Resumption            Tickets no, ID: yes
+Client Authentication         none
+Signature Algorithm           SHA256 with RSA
+Server key size                RSA 2048 bits (exponent is 65537)
+Common Name (CN)              demo.testfire.net
+subjectAltName (SAN)          demo.testfire.net
+Trust (hostname)              certificate does not match supplied URI
+Chain of trust                Ok
+Certificate Validity (UTC)    186 >= 60 days (2025-05-21 --> 2026-06-21)
+Certificate Transparency      yes (certificate extension)
+Certificates provided         4
+Issuer                        Sectigo RSA Domain Validation Secure
+                               Server CA (Sectigo Limited from GB)
+
+
+----------------------------------------
+ HTTP HEADER RESPONSE @ "/"
+----------------------------------------
+HTTP Status Code             200 OK
+Strict Transport Security    not offered
+Public Key Pinning           --
+Server banner                Apache-Coyote/1.1
+Cookie(s)                    1 issued: 1/1 secure, 1/1 HttpOnly
+Security headers             --
+
+------------------------------------------------------------
+[Screenshot] screenshots/testssl_server_defaults.png
+Caption: Server certificate and HTTP header defaults - note HSTS
+"not offered" and missing security headers.
+------------------------------------------------------------
+
+
+----------------------------------------
+ VULNERABILITIES
+----------------------------------------
+Heartbleed (CVE-2014-0160)                not vulnerable (OK)
+CCS (CVE-2014-0224)                       not vulnerable (OK)
+Ticketbleed (CVE-2016-9244)               not vulnerable (OK)
+ROBOT                                     not vulnerable (no RSA key
+                                           transport cipher suites)
+Secure Renegotiation (RFC 5746)           supported (OK)
+Secure Client-Initiated Renegotiation     not vulnerable (OK)
+CRIME, TLS (CVE-2012-4929)                not vulnerable (OK)
+BREACH (CVE-2013-3587)                    not vulnerable (OK, no
+                                           compression)
+POODLE, SSL (CVE-2014-3566)               not vulnerable (OK)
+TLS_FALLBACK_SCSV (RFC 7507)              Downgrade attack prevention
+                                           NOT supported
+SWEET32 (CVE-2016-2183/6329)              not vulnerable (OK)
+FREAK (CVE-2015-0204)                     not vulnerable (OK)
+DROWN (CVE-2016-0800/0703)                not vulnerable (OK)
+LOGJAM (CVE-2015-4000)                    VULNERABLE (NOT ok): common
+                                           prime RFC2409/Oakley Group 2
+                                           (1024 bits), no DH EXPORT
+                                           ciphers
+BEAST (CVE-2011-3389)                     VULNERABLE -- but mitigated
+                                           by TLS 1.1/1.2 support
+LUCKY13 (CVE-2013-0169)                   potentially VULNERABLE
+                                           (obsolete CBC ciphers offered)
+Winshock (CVE-2014-6321)                  not vulnerable (OK)
+RC4 (CVE-2013-2566/2808)                  no RC4 ciphers detected (OK)
+
+------------------------------------------------------------
+[Screenshot] screenshots/testssl_vulnerabilities.png
+Caption: testssl.sh vulnerability results highlighting LOGJAM
+(CVE-2015-4000) as confirmed VULNERABLE, plus BEAST and LUCKY13 flags.
+------------------------------------------------------------
+
+
+----------------------------------------
+ RATING (EXPERIMENTAL)
+----------------------------------------
+Protocol Support (weighted)  0 (0)
+Key Exchange     (weighted)  0 (0)
+Cipher Strength  (weighted)  0 (0)
+Final Score                  0
+Overall Grade                M
+Grade cap reasons            Grade capped to M: Domain name mismatch
+                              Grade capped to B: TLS 1.1 offered
+                              Grade capped to B: TLS 1.0 offered
+Grade warning                TLS 1.3 is not supported
+
+Scan finished: 2025-12-17 11:26:00 [385s]
+
+------------------------------------------------------------
+[Screenshot] screenshots/testssl_rating.png
+Caption: testssl.sh experimental SSL Labs-style rating - Overall
+Grade "M" due to hostname mismatch and deprecated protocol support.
+------------------------------------------------------------
+
+
+========================================
+ SUMMARY
+========================================
+1. Deprecated TLS Protocols (TLS 1.0 / TLS 1.1 enabled, TLS 1.3 absent)
+   - Violates RFC 8996 and modern security baselines (PCI DSS, NIST,
+     Mozilla TLS baseline)
+   - Enables legacy attacks when combined with weak ciphers
+
+2. TLS Downgrade Protection Missing (TLS_FALLBACK_SCSV)
+   - Allows an active attacker to force a protocol downgrade
+   - Especially dangerous combined with TLS 1.0/1.1 + weak DH group
+
+3. Weak Diffie-Hellman Group / LOGJAM (CVE-2015-4000)
+   - 1024-bit DH group is cryptographically broken, vulnerable to
+     precomputation attacks
+   - Weakens confidentiality of encrypted traffic
+
+4. Additional secondary findings
+   - Obsolete CBC ciphers still offered (contributes to LUCKY13 risk)
+   - No server cipher order enforced
+   - HSTS not offered; no security headers present on HTTP responses
+   - Certificate hostname mismatch flagged by testssl.sh, capping the
+     overall grade at "M"
+
+Overall Grade: M (capped due to hostname mismatch, TLS 1.0/1.1 support)
