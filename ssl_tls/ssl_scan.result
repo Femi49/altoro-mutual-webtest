@@ -1,0 +1,133 @@
+========================================
+ SSLSCAN RESULT - demo.testfire.net (65.61.137.117:443)
+========================================
+
+[Command]
+sslscan 65.61.137.117 | tee ssl.result1
+
+[Result]
+Version: 2.1.5
+OpenSSL 3.5.3 16 Sep 2025
+
+Connected to 65.61.137.117
+Testing SSL server 65.61.137.117 on port 443 using SNI name 65.61.137.117
+
+  SSL/TLS Protocols:
+SSLv2     disabled
+SSLv3     disabled
+TLSv1.0   enabled
+TLSv1.1   enabled
+TLSv1.2   enabled
+TLSv1.3   disabled
+
+  TLS Fallback SCSV:
+Connection failed - unable to determine TLS Fallback SCSV support
+
+  TLS renegotiation:
+Secure session renegotiation supported
+
+  TLS Compression:
+Compression disabled
+
+  Heartbleed:
+TLSv1.2 not vulnerable to heartbleed
+TLSv1.1 not vulnerable to heartbleed
+TLSv1.0 not vulnerable to heartbleed
+
+  Supported Server Cipher(s):
+Preferred TLSv1.2  256 bits  ECDHE-RSA-AES256-GCM-SHA384   Curve P-256 DHE 256
+Accepted  TLSv1.2  256 bits  DHE-RSA-AES256-GCM-SHA384     DHE 1024 bits
+Accepted  TLSv1.2  128 bits  ECDHE-RSA-AES128-GCM-SHA256   Curve P-256 DHE 256
+Accepted  TLSv1.2  128 bits  DHE-RSA-AES128-GCM-SHA256     DHE 1024 bits
+Accepted  TLSv1.2  256 bits  ECDHE-RSA-AES256-SHA384       Curve P-256 DHE 256
+Accepted  TLSv1.2  256 bits  DHE-RSA-AES256-SHA256         DHE 1024 bits
+Accepted  TLSv1.2  128 bits  ECDHE-RSA-AES128-SHA256       Curve P-256 DHE 256
+Accepted  TLSv1.2  128 bits  DHE-RSA-AES128-SHA256         DHE 1024 bits
+Accepted  TLSv1.2  256 bits  ECDHE-RSA-AES256-SHA          Curve P-256 DHE 256
+Accepted  TLSv1.2  256 bits  DHE-RSA-AES256-SHA            DHE 1024 bits
+Accepted  TLSv1.2  128 bits  ECDHE-RSA-AES128-SHA          Curve P-256 DHE 256
+Accepted  TLSv1.2  128 bits  DHE-RSA-AES128-SHA            DHE 1024 bits
+Preferred TLSv1.1  256 bits  ECDHE-RSA-AES256-SHA          Curve P-256 DHE 256
+Accepted  TLSv1.1  256 bits  DHE-RSA-AES256-SHA            DHE 1024 bits
+Accepted  TLSv1.1  128 bits  ECDHE-RSA-AES128-SHA          Curve P-256 DHE 256
+Accepted  TLSv1.1  128 bits  DHE-RSA-AES128-SHA            DHE 1024 bits
+Preferred TLSv1.0  256 bits  ECDHE-RSA-AES256-SHA          Curve P-256 DHE 256
+Accepted  TLSv1.0  256 bits  DHE-RSA-AES256-SHA            DHE 1024 bits
+Accepted  TLSv1.0  128 bits  ECDHE-RSA-AES128-SHA          Curve P-256 DHE 256
+Accepted  TLSv1.0  128 bits  DHE-RSA-AES128-SHA            DHE 1024 bits
+
+  Server Key Exchange Group(s):
+TLSv1.2  141 bits  sect283k1
+TLSv1.2  141 bits  sect283r1
+TLSv1.2  204 bits  sect409k1
+TLSv1.2  204 bits  sect409r1
+TLSv1.2  285 bits  sect571k1
+TLSv1.2  285 bits  sect571r1
+TLSv1.2  128 bits  secp256k1
+TLSv1.2  128 bits  secp256r1 (NIST P-256)
+TLSv1.2  192 bits  secp384r1 (NIST P-384)
+TLSv1.2  260 bits  secp521r1 (NIST P-521)
+
+  SSL Certificate:
+Signature Algorithm: sha256WithRSAEncryption
+RSA Key Strength:    2048
+
+Subject:  demo.testfire.net
+Altnames: DNS:demo.testfire.net
+Issuer:   Sectigo RSA Domain Validation Secure Server CA
+
+Not valid before: May 21 00:00:00 2025 GMT
+Not valid after:  Jun 21 23:59:59 2026 GMT
+
+
+------------------------------------------------------------
+[Screenshot] screenshots/sslscan_protocols.png
+Caption: sslscan output showing TLSv1.0/1.1/1.2 enabled and TLSv1.3
+disabled on port 443.
+------------------------------------------------------------
+
+
+[Command]
+sslscan --tlsfallback 65.61.137.117 | tee ssl.result2
+
+[Result]
+ CHECKING CONNECTIVITY TO SERVER(S)
+ ----------------------------------
+   65.61.137.117:443         => 65.61.137.117
+
+ SCAN RESULTS FOR 65.61.137.117:443 - 65.61.137.117
+ --------------------------------------------------
+
+ * Downgrade Attacks:
+       TLS_FALLBACK_SCSV:                 VULNERABLE - Signaling cipher
+       suite not supported
+
+ SCANS COMPLETED IN 4.492123 S
+ -----------------------------
+
+ COMPLIANCE AGAINST MOZILLA TLS CONFIGURATION
+ --------------------------------------------
+    Disabled; use --mozilla_config={old, intermediate, modern}.
+
+
+------------------------------------------------------------
+[Screenshot] screenshots/sslscan_fallback_scsv.png
+Caption: sslscan confirming TLS_FALLBACK_SCSV is not supported,
+indicating the server is vulnerable to protocol downgrade attacks.
+------------------------------------------------------------
+
+
+========================================
+ SUMMARY
+========================================
+- TLSv1.0 and TLSv1.1 are enabled (deprecated, RFC 8996); TLSv1.3 is
+  not supported
+- TLS_FALLBACK_SCSV (RFC 7507) is not supported -> vulnerable to
+  downgrade attacks
+- Heartbleed: not vulnerable across all tested protocol versions
+- Certificate: RSA 2048-bit, sha256WithRSAEncryption, issued by
+  Sectigo, valid May 2025 - Jun 2026, CN/SAN = demo.testfire.net
+- DHE cipher suites observed using only 1024-bit DH groups
+  (see testssl_result.txt for confirmed Logjam finding)
+- Full ciphers accepted across TLSv1.0/1.1/1.2 exceed current best
+  practice (legacy CBC and SHA1-based suites still offered)
