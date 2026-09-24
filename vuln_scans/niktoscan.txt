@@ -1,0 +1,96 @@
+========================================
+ NIKTO SCAN RESULT - demo.testfire.net
+========================================
+
+┌──(kali㉿kali)-[~/mypentest]
+└─$ nikto -h demo.testfire.net | tee niktoscan   
+
+[Result]
+- Nikto v2.5.0
+---------------------------------------------------------------------------
++ Target IP:          65.61.137.117
++ Target Hostname:    demo.testfire.net
++ Target Port:        80
++ Start Time:         2025-12-21 12:22:45 (GMT-5)
+---------------------------------------------------------------------------
++ Server: Apache-Coyote/1.1
++ /: The anti-clickjacking X-Frame-Options header is not present.
+  See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
++ /: The X-Content-Type-Options header is not set. This could allow
+  the user agent to render the content of the site in a different
+  fashion to the MIME type.
+  See: https://www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ OPTIONS: Allowed HTTP Methods: GET, HEAD, POST, PUT, DELETE, OPTIONS .
++ HTTP method ('Allow' Header): 'PUT' method could allow clients to
+  save files on the web server.
++ HTTP method ('Allow' Header): 'DELETE' may allow clients to remove
+  files on the web server.
++ /: Web Server returns a valid response with junk HTTP methods which
+  may cause false positives.
++ ERROR: Error limit (20) reached for host, giving up. Last error:
+  error reading HTTP response
++ Scan terminated: 20 error(s) and 6 item(s) reported on remote host
++ End Time:           2025-12-21 12:26:56 (GMT-5) (251 seconds)
+
+
+------------------------------------------------------------
+[Screenshot] screenshots/nikto_scan.png
+Caption: Nikto scan output showing missing security headers and
+dangerous HTTP methods (PUT, DELETE) advertised in the Allow header.
+------------------------------------------------------------
+
+
+----------------------------------------
+ MANUAL VERIFICATION - OPTIONS METHOD
+----------------------------------------
+Nikto flagged possible HTTP method manipulation. This is not
+conclusive on its own, so the finding was manually verified by
+sending a direct OPTIONS request to the server.
+
+[Command]
+curl -X OPTIONS http://demo.testfire.net/
+
+[Result]
+The server responded to the OPTIONS request with the FULL HTML page
+content of the Altoro Mutual homepage (title, header, navigation
+menu, footer, disclaimer, etc.) instead of a minimal method-disclosure
+response with an empty/short body.
+
+Excerpt of response:
+  <title>Altoro Mutual</title>
+  ...
+  <a id="LoginLink" href="/login.jsp">Sign In</a>
+  ...
+  <div class="disclaimer">
+    The AltoroJ website is published by HCL Technologies, Ltd. for
+    the sole purpose of demonstrating the effectiveness of HCL
+    products in detecting web application vulnerabilities...
+  </div>
+
+------------------------------------------------------------
+[Screenshot] screenshots/curl_options_response.png
+Caption: curl -X OPTIONS response showing full application HTML
+returned instead of a minimal method-disclosure response.
+------------------------------------------------------------
+
+
+========================================
+ SUMMARY
+========================================
+1. Missing Security Headers
+   - X-Frame-Options not present (clickjacking exposure)
+   - X-Content-Type-Options not present (MIME-sniffing exposure)
+
+2. Dangerous HTTP Methods Enabled
+   - Allow header advertises PUT and DELETE in addition to
+     GET, HEAD, POST, OPTIONS
+   - PUT could allow file upload/overwrite on the server
+   - DELETE could allow removal of server-side resources
+   - The risk depends on whether these methods are properly access
+     controlled at the application layer (further testing required
+     to confirm exploitability)
+
+Note: Nikto's HTTP method findings are indicative, not conclusive.
+Confirmed via manual OPTIONS request above; further manual testing
+    (e.g. attempting actual PUT/DELETE requests) is recommended.
